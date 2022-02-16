@@ -3,6 +3,23 @@ export class Matrix3x3 {
     this.data = data;
   }
 
+  mul(m) {
+    this.data = Matrix3x3.mul(this, m);
+    return this;
+  }
+
+  translate(x, y) {
+    return this.mul(Matrix3x3.translate(x, y));
+  }
+
+  scale(x, y) {
+    return this.mul(Matrix3x3.scale(x, y));
+  }
+
+  rotateX(x, y) {
+    return this.mul(Matrix3x3.rotateX(x, y));
+  }
+
   static mul(m, m1) {
     let d = m.data;
     let d1 = m1.data;
@@ -52,6 +69,45 @@ export class Matrix3x3 {
       d[2],
       d[5],
       d[8],
+    ]);
+  }
+  static det(m) {
+    let d = m.data;
+    return (
+      d[0] * (d[4] * d[8] - d[5] * d[7]) -
+      d[1] * (d[3] * d[8] - d[5] * d[6]) +
+      d[2] * (d[3] * d[7] - d[4] * d[6])
+    );
+  }
+  static adj(m) {
+    let d = m.data;
+    return new Matrix3x3([
+      d[4] * d[8] - d[5] * d[7],
+      -(d[3] * d[8] - d[6] * d[5]),
+      d[3] * d[7] - d[4] * d[6],
+
+      -(d[1] * d[8] - d[7] * d[2]),
+      d[0] * d[8] - d[6] * d[2],
+      -(d[0] * d[7] - d[1] * d[6]),
+
+      d[1] * d[5] - d[2] * d[4],
+      -(d[0] * d[5] - d[2] * d[3]),
+      d[0] * d[4] - d[1] * d[3],
+    ]);
+  }
+  static inverse(m) {
+    let adj = Matrix3x3.adj(m).data;
+    let det = Matrix3x3.det(m).data;
+    return Matrix3x3([
+      adj[0] / det,
+      adj[1] / det,
+      adj[2] / det,
+      adj[3] / det,
+      adj[4] / det,
+      adj[5] / det,
+      adj[6] / det,
+      adj[7] / det,
+      adj[8] / det,
     ]);
   }
 }
