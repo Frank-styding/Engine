@@ -52,4 +52,40 @@ export class Program {
   getUniformLocation(name) {
     return gl.getUniformLocation(this.program, name);
   }
+  uniformVec2(name, vec) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniform2f(location, vec.x, vec.y);
+    }
+  }
+  uniformVec3(name, vec) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniform3f(location, vec.x, vec.y, vec.z);
+    }
+  }
+  uniformVec4(name, vec) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniform4f(location, vec.x, vec.y, vec.z, vec.w);
+    }
+  }
+  uniformMatrix2x2(name, m, transpose = false) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniformMatrix2fv(location, transpose, new Float32Array(m.data));
+    }
+  }
+  uniformMatrix3x3(name, m, transpose = false) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniformMatrix3fv(location, transpose, new Float32Array(m.data));
+    }
+  }
+  uniformMatrix4x4(name, m, transpose = false) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniformMatrix4fv(location, transpose, new Float32Array(m.data));
+    }
+  }
 }

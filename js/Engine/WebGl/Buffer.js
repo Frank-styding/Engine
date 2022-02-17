@@ -15,13 +15,12 @@ export class Buffer {
    * @param { Options } param3
    */
 
-  constructor(name, data, type, { target, dataType, usage } = {}) {
+  constructor(name, data, type, { target, usage } = {}) {
     this.name = name;
     this.data = data;
-    this.type = type;
     this.target = target ?? gl.ARRAY_BUFFER;
     this.usage = usage ?? gl.STATIC_DRAW;
-    this.dataType = dataType ?? "float";
+    this.dataType = type ?? "float";
     this.createBuffer();
   }
 
@@ -37,6 +36,12 @@ export class Buffer {
     switch (this.dataType) {
       case "float":
         this.data = new Float32Array(this.data);
+        break;
+      case "int":
+        this.data = new Int16Array(this.data);
+        break;
+      case "uint":
+        this.data = new Uint16Array(this.data);
         break;
     }
   }

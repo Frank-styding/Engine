@@ -3,7 +3,7 @@ import { Vec2 } from "./Vec2.js";
 export class Vec3 {
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    */
@@ -14,7 +14,7 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number| Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    */
@@ -29,7 +29,7 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    */
@@ -47,7 +47,7 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    */
@@ -74,7 +74,24 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
+   * @param {undefined|number} y
+   * @param {undefined|number} z
+   * @returns {Vec3}
+   */
+  set(x, y = undefined, z = undefined) {
+    let _x = Vec3.getX(x, y, z);
+    let _y = Vec3.getY(x, y, z);
+    let _z = Vec3.getZ(x, y, z);
+    this.x = _x;
+    this.y = _y;
+    this.z = _z;
+    return this;
+  }
+
+  /**
+   *
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    * @returns {Vec3}
@@ -90,7 +107,7 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    * @returns {Vec3}
@@ -106,7 +123,7 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    * @returns {Vec3}
@@ -122,7 +139,7 @@ export class Vec3 {
   }
   /**
    *
-   * @param {Vec2|number} x
+   * @param {Vec2|number|Vec3} x
    * @param {undefined|number} y
    * @param {undefined|number} z
    * @returns {Vec3}
@@ -131,16 +148,23 @@ export class Vec3 {
     let _x = Vec3.getX(x, y, z);
     let _y = Vec3.getY(x, y, z);
     let _z = Vec3.getZ(x, y, z);
-    this.x *= _x;
-    this.y *= _y;
-    this.z *= _z;
+    this.x /= _x;
+    this.y /= _y;
+    this.z /= _z;
     return this;
   }
 
+  /**
+   *
+   * @returns {number}
+   */
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
   }
-
+  /**
+   *
+   * @returns {number}
+   */
   lengthSqrt() {
     return this.x * this.x + this.y * this.y + this.z * this.z;
   }

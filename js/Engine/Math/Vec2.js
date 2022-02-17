@@ -36,6 +36,21 @@ export class Vec2 {
   }
   /**
    *
+   * @param {number|Vec2} x
+   * @param {number|undefined} y
+   * @param {number|undefined} z
+   * @param {number|undefined} w
+   * @returns {Vec2}
+   */
+  set(x, y = undefined) {
+    let _x = Vec2.getX(x, y);
+    let _y = Vec2.getY(x, y);
+    this.x = _x;
+    this.y = _y;
+    return this;
+  }
+  /**
+   *
    * @param {Vec2|number} x
    * @param {undefined|number} y
    * @returns {Vec2}
@@ -87,9 +102,16 @@ export class Vec2 {
     return this;
   }
 
+  /**
+   *
+   * @returns {number}
+   */
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
+  /**
+   * @returns {number}
+   */
   lengthSqrt() {
     return this.x * this.x + this.y * this.y;
   }

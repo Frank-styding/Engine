@@ -21,6 +21,7 @@ export class Vao {
    * @property { string | undefined } name
    * @property { boolean } isVertextBuffer
    * @property { BufferProps | undefined } bufferProps
+   * @property { boolean } isElementBuffer
    */
 
   /**
@@ -32,6 +33,7 @@ export class Vao {
   constructor(name, attributesData) {
     this.name = name;
     this.attributesData = attributesData;
+    this.hasElementBuffer = false;
     this.vao = this.createVao();
     this.attributes = this.createAttributes();
   }
@@ -50,11 +52,16 @@ export class Vao {
       let dataSize = attributeData.dataSize ?? 2;
       let name = attributeData.name ?? "";
       let isVertextBuffer = attributeData.isVertextBuffer ?? false;
+      let isElementBuffer = attributeData.isElementBuffer ?? false;
 
       if (isVertextBuffer) {
         this.count = data.length / dataSize;
       }
 
+      if (isElementBuffer) {
+        this.count = data.length;
+        this.hasElementBuffer = true;
+      }
       let buffer = new Buffer(
         name,
         data,
@@ -77,20 +84,31 @@ export class Vao {
     this.bind();
     this.attributes.forEach((attribute) => {
       attribute.buffer.bind();
-      gl.enableVertexAttribArray(attribute.location);
-      gl.vertexAttribPointer(
-        attribute.location,
-        attribute.dataSize,
-        attribute.type == "float" ? gl.FLOAT : gl.INT,
-        attribute.normalize,
-        0,
-        0
-      );
-      attribute.buffer.unBind();
+      if (attribute.location != undefined) {
+        gl.enableVertexAttribArray(attribute.location);
+        gl.vertexAttribPointer(
+          attribute.location,
+          attribute.dataSize,
+          attribute.type == "float" ? gl.FLOAT : gl.INT,
+          attribute.normalize,
+          0,
+          0
+        );
+        attribute.buffer.unBind();
+      }
     });
   }
 
   render({ offset, primitiveType } = {}) {
+    if (this.hasElementBuffer) {
+      gl.drawElements(
+        primitiveType ?? gl.TRIANGLES,
+        this.count,
+        gl.UNSIGNED_SHORT,
+        offset ?? 0
+      );
+      return;
+    }
     gl.drawArrays(primitiveType ?? gl.TRIANGLES, offset ?? 0, this.count);
   }
 }
