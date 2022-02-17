@@ -1,5 +1,5 @@
-import { Vec2 } from "./Engine/Math/Vec2.js";
-import { Vec3 } from "./Engine/Math/Vec3.js";
+import { Matrix2x2 } from "./Engine/Math/Matrix2x2.js";
+import { Matrix3x3 } from "./Engine/Math/Matrix3x3.js";
 import { initWebGl, gl } from "./Engine/WebGl/InitWebGl.js";
 import { Program } from "./Engine/WebGl/Program.js";
 import { Vao } from "./Engine/WebGl/Vao.js";
@@ -70,3 +70,7 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 program.useProgram();
 vao.bind();
 vao.render();
+let matrix = new Matrix2x2();
+matrix.scale(2, 2);
+console.log(Matrix2x2.inverse(matrix));
+console.log(matrix);
