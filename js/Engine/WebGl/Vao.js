@@ -34,17 +34,16 @@ export class Vao {
     this.name = name;
     this.attributesData = attributesData;
     this.hasElementBuffer = false;
-    this.vao = this.createVao();
-    this.attributes = this.createAttributes();
+    this.createVao();
+    this.createAttributes();
   }
 
   createVao() {
-    let vao = gl.createVertexArray();
-    return vao;
+    this.vao = gl.createVertexArray();
   }
 
   createAttributes() {
-    return this.attributesData.map((attributeData) => {
+    this.attributes = this.attributesData.map((attributeData) => {
       let location = attributeData.location ?? undefined;
       let type = attributeData.type ?? "float";
       let data = attributeData.data ?? [];
@@ -80,7 +79,7 @@ export class Vao {
     gl.bindVertexArray(null);
   }
 
-  laodAttributesData() {
+  loadAttributesData() {
     this.bind();
     this.attributes.forEach((attribute) => {
       attribute.buffer.bind();

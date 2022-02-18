@@ -42,7 +42,7 @@ export class Program {
   }
 
   unUseProgram() {
-    gl.unUseProgram(this.program);
+    gl.useProgram(null);
   }
 
   getAttrLocation(name) {
@@ -86,6 +86,18 @@ export class Program {
     let location = gl.getUniformLocation(this.program, name);
     if (location != null) {
       gl.uniformMatrix4fv(location, transpose, new Float32Array(m.data));
+    }
+  }
+  uniformfloat(name, val) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniform1f(location, val);
+    }
+  }
+  uniformfloat(name, val) {
+    let location = gl.getUniformLocation(this.program, name);
+    if (location != null) {
+      gl.uniform1i(location, val);
     }
   }
 }

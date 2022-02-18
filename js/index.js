@@ -6,6 +6,8 @@ import { Vao } from "./Engine/WebGl/Vao.js";
 import { Vec3 } from "./Engine/Math/Vec3.js";
 import { Matrix4x4 } from "./Engine/Math/Matrix4x4.js";
 import { toRadiands } from "./Engine/utilities.js";
+import { rectGeometry, lines } from "./Engine/Geometry/Geometry.js";
+
 initWebGl(document.getElementById("canvas"), innerWidth, innerHeight);
 
 let program = new Program(
@@ -16,9 +18,11 @@ let program = new Program(
 
 uniform mat4 u_matrix;
 uniform mat4 u_projection;
-in vec2 a_position;
-in vec3 a_color;
-out vec3 color;
+in vec3 a_position;
+in vec2 a_texCord;
+
+out vec2 text_cord;
+
 
 // all shaders have a main function
 void main() {
@@ -26,9 +30,9 @@ void main() {
   // gl_Position is a special variable a vertex shader
   // is responsible for setting
 
-  color = a_color;
+  text_cord = a_texCord;
 
-  gl_Position =  u_projection * u_matrix *  vec4( a_position ,0,1.0);
+  gl_Position =  u_projection * u_matrix *  vec4( a_position,1.0);
 }`,
   `#version 300 es
  
@@ -38,46 +42,53 @@ precision highp float;
  
 // we need to declare an output for the fragment shader
 uniform vec3 u_color;
-in vec3 color;
+
 out vec4 outColor;
+
+in vec2 text_cord;
  
 void main() {
   // Just set the output to a constant reddish-purple
 
 
-  outColor = vec4(color,1);
+  outColor = vec4(u_color,1);
 }
 `
 );
 
+let shape = rectGeometry(1, 1, 4, 4);
 let vao = new Vao("default", [
   {
     location: program.getAttrLocation("a_position"),
     type: "float",
-    data: [-0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5],
-    /*     isVertextBuffer: true, */
-    dataSize: 2,
-  },
-  {
-    location: program.getAttrLocation("a_color"),
-    type: "float",
-    data: [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0],
+    data: shape.cords.map((item, idx) => {
+      if (idx % 3 == 2) {
+        return item + (Math.random() * (0.1 - 0.05) + 0.05);
+      }
+      return item;
+    }),
     dataSize: 3,
   },
   {
+    location: program.getAttrLocation("a_texCord"),
+    type: "float",
+    data: shape.textCords,
+    dataSize: 2,
+  },
+  {
     type: "uint",
-    data: [0, 1, 2, 0, 3, 2],
+    data: shape.indexs,
     bufferProps: {
       target: gl.ELEMENT_ARRAY_BUFFER,
     },
     isElementBuffer: true,
   },
 ]);
-
-vao.laodAttributesData();
+vao.loadAttributesData();
 
 gl.clearColor(0, 0, 0, 0);
 gl.clear(gl.COLOR_BUFFER_BIT);
+
 program.useProgram();
 program.uniformVec3("u_color", new Vec3(53, 53, 53).div(255));
 
@@ -92,9 +103,70 @@ program.uniformMatrix4x4(
   new Matrix4x4()
     .translate(0, 0, -2)
     .rotateY(toRadiands(0))
-    .rotateX(toRadiands(0)),
+    .rotateX(toRadiands(-70)),
   true
 );
 
 vao.bind();
 vao.render();
+vao.unBind();
+program.unUseProgram();
+
+/* 
+let shape = rectGeomtry(1, 1, 100, 100);
+
+let vao = new Vao("default", [
+  {
+    location: program.getAttrLocation("a_position"),
+    type: "float",
+    data: shape.cords.map((item, idx) => {
+      if (idx % 3 == 2) {
+        return item + (Math.random() * (0.1 - 0.05) + 0.05);
+      }
+      return item;
+    }),
+    dataSize: 3,
+  },
+  {
+    type: "uint",
+    data: shape.indexs,
+    bufferProps: {
+      target: gl.ELEMENT_ARRAY_BUFFER,
+    },
+    isElementBuffer: true,
+  },
+]);
+
+vao.laodAttributesData();
+let angle = 0;
+function loop() {
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  program.useProgram();
+  program.uniformVec3("u_color", new Vec3(53, 53, 53).div(255));
+
+  program.uniformMatrix4x4(
+    "u_projection",
+    Matrix4x4.perspective(canvas.width / canvas.height, Math.PI / 4, 0.1, 1000),
+    true
+  );
+
+  program.uniformMatrix4x4(
+    "u_matrix",
+    new Matrix4x4()
+      .translate(0, 0, -2)
+      .rotateY(toRadiands(angle))
+      .rotateX(toRadiands(-70)),
+    true
+  );
+
+  vao.bind();
+  vao.render();
+  vao.unBind();
+  program.unUseProgram();
+  angle++;
+  requestAnimationFrame(loop);
+}
+loop();
+ */
