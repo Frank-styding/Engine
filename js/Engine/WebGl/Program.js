@@ -88,13 +88,13 @@ export class Program {
       gl.uniformMatrix4fv(location, transpose, new Float32Array(m.data));
     }
   }
-  uniformfloat(name, val) {
+  uniformFloat(name, val) {
     let location = gl.getUniformLocation(this.program, name);
     if (location != null) {
       gl.uniform1f(location, val);
     }
   }
-  uniformfloat(name, val) {
+  uniformInt(name, val) {
     let location = gl.getUniformLocation(this.program, name);
     if (location != null) {
       gl.uniform1i(location, val);

@@ -1,6 +1,5 @@
 import { gl } from "./InitWebGl.js";
 import { Buffer } from "./Buffer.js";
-import { Program } from "./Program.js";
 
 export class Vao {
   /**
@@ -83,7 +82,7 @@ export class Vao {
     this.bind();
     this.attributes.forEach((attribute) => {
       attribute.buffer.bind();
-      if (attribute.location != undefined) {
+      if (attribute.location != undefined && attribute.location != null) {
         gl.enableVertexAttribArray(attribute.location);
         gl.vertexAttribPointer(
           attribute.location,
@@ -109,5 +108,11 @@ export class Vao {
       return;
     }
     gl.drawArrays(primitiveType ?? gl.TRIANGLES, offset ?? 0, this.count);
+  }
+}
+
+class _Vao {
+  constructor() {
+    this.atributes = {};
   }
 }

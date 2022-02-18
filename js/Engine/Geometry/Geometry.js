@@ -20,7 +20,7 @@ export function rectGeometry(width, height, widthSegments, heightSegments) {
         j * heightSegment - height / 2,
         0
       );
-      textCords.push(i / widthSegments, j / heightSegments);
+      textCords.push(i / widthSegments, 1 - j / heightSegments);
     }
   }
 
@@ -30,13 +30,38 @@ export function rectGeometry(width, height, widthSegments, heightSegments) {
         i + j * (widthSegments + 1),
         i + 1 + j * (widthSegments + 1),
         i + (j + 1) * (widthSegments + 1),
-        i + 1 + j * (widthSegments + 1),
+
         i + (j + 1) * (widthSegments + 1),
+        i + 1 + j * (widthSegments + 1),
         i + 1 + (j + 1) * (widthSegments + 1)
       );
     }
   }
 
+  return { cords, indexs, textCords };
+}
+
+export function circleGeometry(radius, segments, thetaStart, thetaLength) {
+  let cords = [];
+  let indexs = [];
+  let textCords = [];
+  let angleSegment = (thetaLength - thetaStart) / segments;
+
+  for (let i = 0; i <= segments; i++) {
+    cords.push(
+      Math.cos(thetaStart + angleSegment * i) * radius,
+      Math.sin(thetaStart + angleSegment * i) * radius
+    );
+    textCords.push(
+      (Math.cos(thetaStart + angleSegment * i) + 1) / 2,
+      (Math.sin(thetaStart + angleSegment * i) + 1) / 2
+    );
+  }
+  cords.push(0, 0);
+
+  for (let i = 0; i <= segments - 1; i++) {
+    indexs.push(i, i + 1, cords.length - 1);
+  }
   return { cords, indexs, textCords };
 }
 
