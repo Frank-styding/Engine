@@ -50,17 +50,19 @@ export function circleGeometry(radius, segments, thetaStart, thetaLength) {
   for (let i = 0; i <= segments; i++) {
     cords.push(
       Math.cos(thetaStart + angleSegment * i) * radius,
-      Math.sin(thetaStart + angleSegment * i) * radius
+      Math.sin(thetaStart + angleSegment * i) * radius,
+      0
     );
     textCords.push(
-      (Math.cos(thetaStart + angleSegment * i) + 1) / 2,
-      (Math.sin(thetaStart + angleSegment * i) + 1) / 2
+      (1 + Math.cos(thetaStart + angleSegment * i)) / 2,
+      1 - (1 + Math.sin(thetaStart + angleSegment * i)) / 2
     );
   }
   cords.push(0, 0);
+  textCords.push(0.5, 0.5);
 
   for (let i = 0; i <= segments - 1; i++) {
-    indexs.push(i, i + 1, cords.length - 1);
+    indexs.push(segments + 1, i, i + 1);
   }
   return { cords, indexs, textCords };
 }

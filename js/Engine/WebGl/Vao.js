@@ -1,118 +1,113 @@
 import { gl } from "./InitWebGl.js";
 import { Buffer } from "./Buffer.js";
 
+/* export class Vao { */
+/**
+ * @typedef { Object } BufferProps
+ * @property {number} target
+ * @property {string} dataType
+ * @property {number} usage
+ */
+
+/**
+ *
+ * @typedef { Object } atributeData
+ * @property { number } location
+ * @property { number[] } data
+ * @property { number } dataSize
+ * @property { boolean | undefined } normalize,
+ * @property { string | undefined }  type
+ * @property { string | undefined } name
+ * @property { boolean } isVertextBuffer
+ * @property { BufferProps | undefined } bufferProps
+ * @property { boolean } isElementBuffer
+ */
+
+/**
+ *
+ * @param {string} name
+ * @param {atributeData[]} attributesData
+ */
 export class Vao {
   /**
-   * @typedef { Object } BufferProps
-   * @property {number} target
-   * @property {string} dataType
-   * @property {number} usage
+   *
+   * @typedef {Object} attribute
+   * @property {Buffer} buffer
+   * @property {number|null|undefined} location
    */
 
   /**
    *
-   * @typedef { Object } atributeData
-   * @property { number } location
-   * @property { number[] } data
-   * @property { number } dataSize
-   * @property { boolean | undefined } normalize,
-   * @property { string | undefined }  type
-   * @property { string | undefined } name
-   * @property { boolean } isVertextBuffer
-   * @property { BufferProps | undefined } bufferProps
-   * @property { boolean } isElementBuffer
+   * @param {Object.<string,attribute>} attributes
    */
-
-  /**
-   *
-   * @param {string} name
-   * @param {atributeData[]} attributesData
-   */
-
-  constructor(name, attributesData) {
-    this.name = name;
-    this.attributesData = attributesData;
+  constructor(attributes = {}) {
+    this.attributes = attributes;
+    this.vao = undefined;
+    this.elementCount = 0;
     this.hasElementBuffer = false;
+    this.loadAttributes();
+  }
+
+  setAttribute(name, buffer, location) {
+    this.attributes[name] = { buffer: buffer, location };
+  }
+
+  loadAttributes() {
     this.createVao();
-    this.createAttributes();
+    this.bind();
+    for (let attributeName in this.attributes) {
+      let attribute = this.attributes[attributeName];
+
+      if (attribute.buffer.target == gl.ELEMENT_ARRAY_BUFFER) {
+        this.elementCount = attribute.buffer.data.length;
+        this.hasElementBuffer = true;
+      }
+
+      if (!this.hasElementBuffer) {
+        this.elementCount = Math.max(
+          this.elementCount,
+          attribute.buffer.data.length / attribute.buffer.dataSize
+        );
+      }
+
+      attribute.buffer.bind();
+
+      if (attribute.location != undefined && attribute.location != null) {
+        gl.enableVertexAttribArray(attribute.location);
+        gl.vertexAttribPointer(
+          attribute.location,
+          attribute.buffer.dataSize,
+          attribute.buffer.type,
+          attribute.buffer.normalize,
+          0,
+          0
+        );
+      }
+    }
   }
 
   createVao() {
     this.vao = gl.createVertexArray();
   }
 
-  createAttributes() {
-    this.attributes = this.attributesData.map((attributeData) => {
-      let location = attributeData.location ?? undefined;
-      let type = attributeData.type ?? "float";
-      let data = attributeData.data ?? [];
-      let normalize = attributeData.normalize ?? false;
-      let dataSize = attributeData.dataSize ?? 2;
-      let name = attributeData.name ?? "";
-      let isVertextBuffer = attributeData.isVertextBuffer ?? false;
-      let isElementBuffer = attributeData.isElementBuffer ?? false;
-
-      if (isVertextBuffer) {
-        this.count = data.length / dataSize;
-      }
-
-      if (isElementBuffer) {
-        this.count = data.length;
-        this.hasElementBuffer = true;
-      }
-      let buffer = new Buffer(
-        name,
-        data,
-        type,
-        attributeData.bufferProps ?? {}
-      );
-      return { location, type, data, normalize, dataSize, name, buffer };
-    });
-  }
-
   bind() {
-    gl.bindVertexArray(this.vao);
+    if (this.vao) {
+      gl.bindVertexArray(this.vao);
+    }
   }
-
   unBind() {
     gl.bindVertexArray(null);
   }
 
-  loadAttributesData() {
-    this.bind();
-    this.attributes.forEach((attribute) => {
-      attribute.buffer.bind();
-      if (attribute.location != undefined && attribute.location != null) {
-        gl.enableVertexAttribArray(attribute.location);
-        gl.vertexAttribPointer(
-          attribute.location,
-          attribute.dataSize,
-          attribute.type == "float" ? gl.FLOAT : gl.INT,
-          attribute.normalize,
-          0,
-          0
-        );
-        attribute.buffer.unBind();
-      }
-    });
-  }
-
-  render({ offset, primitiveType } = {}) {
+  render({ primitiveType, offset } = {}) {
     if (this.hasElementBuffer) {
       gl.drawElements(
         primitiveType ?? gl.TRIANGLES,
-        this.count,
+        this.elementCount,
         gl.UNSIGNED_SHORT,
         offset ?? 0
       );
-      return;
     }
-    gl.drawArrays(primitiveType ?? gl.TRIANGLES, offset ?? 0, this.count);
-  }
-}
-
-class _Vao {
-  constructor() {
-    this.atributes = {};
+    gl.drawArrays(primitiveType ?? gl.TRIANGLES, 0, this.elementCount);
   }
 }

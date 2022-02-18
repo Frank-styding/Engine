@@ -20,3 +20,13 @@ export function initWebGl(_canvas, width, height) {
   gl = _canvas.getContext("webgl2");
   return gl;
 }
+
+/**
+ *
+ * @param {number} width : ;
+ * @param {height} height
+ */
+export function setDimention(width, height) {
+  canvas.width = width;
+  canvas.height = height;
+}

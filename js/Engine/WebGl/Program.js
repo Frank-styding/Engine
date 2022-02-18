@@ -1,8 +1,7 @@
 import { gl } from "./InitWebGl.js";
 import { Shader } from "./Shader.js";
-export class Program {
-  static currentProgram = undefined;
 
+export class Program {
   /**
    *
    * @param {string} name
@@ -31,27 +30,24 @@ export class Program {
 
     throw new Error(gl.getProgramInfoLog(program));
   }
-
   delete() {
     gl.deleteProgram(this.program);
   }
 
   useProgram() {
     gl.useProgram(this.program);
-    Program.currentProgram = this;
   }
-
   unUseProgram() {
     gl.useProgram(null);
   }
 
-  getAttrLocation(name) {
+  getAttributeLocation(name) {
     return gl.getAttribLocation(this.program, name);
   }
-
   getUniformLocation(name) {
     return gl.getUniformLocation(this.program, name);
   }
+
   uniformVec2(name, vec) {
     let location = gl.getUniformLocation(this.program, name);
     if (location != null) {
@@ -70,6 +66,7 @@ export class Program {
       gl.uniform4f(location, vec.x, vec.y, vec.z, vec.w);
     }
   }
+
   uniformMatrix2x2(name, m, transpose = false) {
     let location = gl.getUniformLocation(this.program, name);
     if (location != null) {
@@ -88,6 +85,7 @@ export class Program {
       gl.uniformMatrix4fv(location, transpose, new Float32Array(m.data));
     }
   }
+
   uniformFloat(name, val) {
     let location = gl.getUniformLocation(this.program, name);
     if (location != null) {
