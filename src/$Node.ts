@@ -1,22 +1,28 @@
 import { $GameObject } from "./$GameObject";
-import { GameObjectType } from "../types/GameObjectType";
 import { Transform } from "./Transform";
 import { ID } from "src/types/ID";
 import { Context } from "src/types/Context";
+import { Box } from "./Box";
 
 type $NodeContext = {
   updatedNodeTransforms: Set<ID>;
 };
 
 export class $Node extends $GameObject<$NodeContext> {
-  static Type: GameObjectType = "Node";
+  static Type = "Node";
   public transform: Transform;
+  public box: Box;
   public children: $Node[];
+  public layerIdx: number;
 
   constructor(name: string) {
-    super(name, $Node.Type);
-    this.transform = new Transform();
+    super(name);
+    this.type = $Node.Type;
+    this.transform = new Transform(this.updateTransform.bind(this));
+    this.box = new Box();
     this.children = [];
+
+    this.layerIdx = 0;
     this.context["updatedNodeTransforms"] = new Set();
   }
 
@@ -24,8 +30,9 @@ export class $Node extends $GameObject<$NodeContext> {
 
   draw(ctx: CanvasRenderingContext2D) {}
 
-  updateTransform() {
+  private updateTransform() {
     this.context.updatedNodeTransforms.add(this.id);
+    this.wasUpdated = true;
   }
 
   protected _invInit(): void {
@@ -43,12 +50,13 @@ export class $Node extends $GameObject<$NodeContext> {
     this.init();
   }
 
-  static updateTransform(object: $GameObject): void {
+  static updateTransforms(object: $GameObject): void {
     const updatedNodeTransforms = (object.context as Context<$NodeContext>)
       .updatedNodeTransforms;
     const baseNodes = Array.from(updatedNodeTransforms);
     for (let i = 0; i < baseNodes.length; i++) {
       const node = $GameObject.objects[baseNodes[i]] as $Node;
+      updatedNodeTransforms.delete(baseNodes[i]);
       if (node.transform.update()) {
         const list = [...node.children];
         while (list.length > 0) {

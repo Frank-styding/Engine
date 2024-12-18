@@ -1,31 +1,66 @@
-import { $Node } from "components/$Node";
+import { $Camera } from "./$Camera";
+import { $Node } from "./$Node";
+import { $Root } from "./$Root";
 
-const node1 = new $Node("node1");
-const node2 = new $Node("node2");
-const node3 = new $Node("node3");
-const node4 = new $Node("node4");
-const node5 = new $Node("node5");
-const node6 = new $Node("node6");
-const node7 = new $Node("node7");
-const node8 = new $Node("node8");
-const node9 = new $Node("node9");
-const node10 = new $Node("node10");
+class Rect extends $Node {
+  static Type: string = "Rect";
+  constructor(name: string, public width: number, public height: number) {
+    super(name);
+  }
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    ctx.fillStyle = "red";
+    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.restore();
+  }
+}
 
-node1.addChild(node2);
-node1.addChild(node3);
-node1.addChild(node4);
-node1.addChild(node5);
-node4.addChild(node6);
-node4.addChild(node7);
-node4.addChild(node8);
-node8.addChild(node9);
-node8.addChild(node10);
+const rect0 = new Rect("rect0", 100, 100);
+const rect1 = new Rect("rect1", 100, 100);
+const rect2 = new Rect("rect2", 100, 100);
+const rect3 = new Rect("rect3", 100, 100);
+const rect4 = new Rect("rect4", 100, 100);
 
-node4.transform.model.translate(10, 10);
-node4.updateTransform();
+const $root = new $Root("root");
 
-$Node.init(node1);
-$Node.update(0, node1);
-$Node.updateTransform(node1);
+const camera = new $Camera("Camera", innerWidth, innerHeight);
 
-console.log(node1);
+const appElement = document.getElementById("app");
+appElement?.appendChild(camera.canvas);
+
+$root.addChild(rect0);
+$root.addChild(rect1);
+$root.addChild(rect2);
+$Node.init($root);
+
+camera.connectRoot($root);
+
+/////////
+
+let startTime = Date.now();
+let fps = 0;
+function loop(t: number) {
+  rect1.transform.position.x += 1;
+  rect2.transform.position.x += 3;
+  $Node.updateTransforms($root);
+  $Node.update(0, $root);
+  $Camera.draw(camera, $root);
+
+  let endTime = Date.now();
+  fps++;
+  if (endTime - startTime > 1000) {
+    console.log("fps: " + fps);
+    fps = 0;
+    startTime = endTime;
+  }
+
+  requestAnimationFrame(loop);
+}
+
+/* loop(0);
+loop(0);
+loop(0); */
+//loop(0);
+requestAnimationFrame(loop);
+//rect1.transform.position.x = 200;
+//requestAnimationFrame(loop);

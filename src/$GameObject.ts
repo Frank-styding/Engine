@@ -1,14 +1,13 @@
-import { Context, GlovalContext } from "../types/Context";
-import { GameObjectType } from "../types/GameObjectType";
-import { ID } from "../types/ID";
-import { generateUUID } from "../utils/generateUUID";
+import { Context, GlovalContext } from "./types/Context";
+import { ID } from "./types/ID";
+import { generateUUID } from "./utils/generateUUID";
 
 export class $GameObject<T extends {} = {}> {
-  static Type: GameObjectType = "GameObject";
+  static Type: string = "GameObject";
   static objects: Record<string, $GameObject> = {};
 
   public name: string;
-  public type: GameObjectType;
+  public type: string;
   public parent?: $GameObject;
   public children: $GameObject[];
   public id: ID;
@@ -16,25 +15,26 @@ export class $GameObject<T extends {} = {}> {
   public isStatic: boolean;
   public isRootObject: boolean;
 
-  public isInitialized: boolean;
+  public wasInitialized: boolean;
   public isReady: boolean;
-  public isUpdated: boolean;
+  public wasUpdated: boolean;
 
   public context: Context<T>;
+  public parentContext?: Context<T>;
   public glovalContext: GlovalContext<T>;
 
   public treeIdx: number;
 
-  constructor(name: string, type?: GameObjectType) {
-    this.type = type || $GameObject.Type;
+  constructor(name: string) {
+    this.type = $GameObject.Type;
     this.name = name;
     this.id = generateUUID();
     this.children = [];
     this.isStatic = false;
     this.isRootObject = false;
     this.isReady = false;
-    this.isInitialized = false;
-    this.isUpdated = false;
+    this.wasInitialized = false;
+    this.wasUpdated = true;
     this.treeIdx = 0;
     this.context = { events: {}, data: {} } as Context<T>;
     this.glovalContext = { events: {}, data: {} } as GlovalContext<T>;
@@ -60,8 +60,11 @@ export class $GameObject<T extends {} = {}> {
   invInit() {} // called from the top to end
   init() {}
   ready() {}
-  update(t: number) {}
+  update(t: number) {
+    this.wasUpdated = false;
+  }
   initEvents() {}
+  draw(ctx: CanvasRenderingContext2D) {}
 
   addChild(children: $GameObject[] | $GameObject) {
     if (!Array.isArray(children)) {
@@ -75,7 +78,7 @@ export class $GameObject<T extends {} = {}> {
       }
     }
     this.children.push(...children);
-    if (this.isInitialized) {
+    if (this.wasInitialized) {
       for (let i = 0; i < children.length; i++) {
         $GameObject.init(children[i]);
       }
@@ -99,7 +102,7 @@ export class $GameObject<T extends {} = {}> {
       obj.glovalContext = object.glovalContext;
       idx++;
       obj._invInit();
-      if (!obj.isRootObject && obj.children.length > 0 && !obj.isInitialized) {
+      if (!obj.isRootObject && obj.children.length > 0 && !obj.wasInitialized) {
         obj.context = object.context;
         for (let i = 0; i < obj.children.length; i++) {
           obj.children[i].treeIdx = obj.treeIdx + 1;
@@ -113,8 +116,9 @@ export class $GameObject<T extends {} = {}> {
       if (!obj.isRootObject || (obj.isRootObject && obj.id == object.id)) {
         obj._init();
         obj._initEvents();
-        obj.isInitialized = true;
+        obj.wasInitialized = true;
       } else {
+        obj.parentContext = object.context;
         this.init(obj);
       }
     }
@@ -129,11 +133,25 @@ export class $GameObject<T extends {} = {}> {
 
   static update(t: number, object: $GameObject) {
     const list = [object];
+    const updatedNodes = [];
     while (list.length > 0) {
       const obj = list.shift() as $GameObject;
-      if (!obj.isStatic && !obj.isUpdated) {
-        obj._update(t);
-        list.push(...obj.children);
+      if (!obj.isStatic && obj.wasUpdated) {
+        updatedNodes.push(obj);
+      }
+      list.push(...obj.children);
+    }
+    const memory = new Set();
+    for (let i = 0; i < updatedNodes.length; i++) {
+      const node = updatedNodes[i] as $GameObject;
+      let parent: $GameObject | undefined = node;
+      while (parent != undefined) {
+        if (memory.has(parent)) {
+          break;
+        }
+        memory.add(parent);
+        parent.update(t);
+        parent = parent.parent;
       }
     }
   }

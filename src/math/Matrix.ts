@@ -1,17 +1,15 @@
-import { generateUUID } from "../utils/generateUUID";
-import { Vector2 } from "./Vector2";
+import { Vector } from "./Vector";
 
 type IData = [number, number, number, number, number, number];
-export class Matrix4x4 {
+export class Matrix {
   private data: IData = [1, 0, 0, 0, 1, 0];
-  private id: string;
+  protected methodCalled(): void {}
 
   constructor(data?: IData) {
     if (data) this.data = data;
-    this.id = generateUUID();
   }
 
-  mul(m: Matrix4x4): Matrix4x4 {
+  mul(m: Matrix): Matrix {
     const data: IData = [1, 0, 0, 0, 1, 0];
     data[0] = this.data[0] * m.data[0] + this.data[1] * m.data[3];
     data[1] = this.data[0] * m.data[1] + this.data[1] * m.data[4];
@@ -23,11 +21,11 @@ export class Matrix4x4 {
     data[5] =
       this.data[3] * m.data[2] + this.data[4] * m.data[5] + this.data[5];
     this.data = data;
-
+    this.methodCalled();
     return this;
   }
 
-  leftMul(m: Matrix4x4) {
+  leftMul(m: Matrix) {
     const data: IData = [1, 0, 0, 0, 1, 0];
     data[0] = m.data[0] * this.data[0] + m.data[1] * this.data[3];
     data[1] = m.data[0] * this.data[1] + m.data[1] * this.data[4];
@@ -37,10 +35,12 @@ export class Matrix4x4 {
     data[4] = m.data[3] * this.data[1] + m.data[4] * this.data[4];
     data[5] = m.data[3] * this.data[2] + m.data[4] * this.data[5] + m.data[5];
     this.data = data;
+    this.methodCalled();
+
     return this;
   }
 
-  rotate(a: number): Matrix4x4 {
+  rotate(a: number): Matrix {
     const c = Math.cos(a);
     const s = Math.sin(a);
     const data: IData = [1, 0, 0, 0, 1, 0];
@@ -51,10 +51,12 @@ export class Matrix4x4 {
     data[4] = this.data[3] * -s + this.data[4] * c;
     data[5] = this.data[5];
     this.data = data;
+    this.methodCalled();
+
     return this;
   }
 
-  scale(sx: number, sy: number): Matrix4x4 {
+  scale(sx: number, sy: number): Matrix {
     const data: IData = [1, 0, 0, 0, 1, 0];
     data[0] = this.data[0] * sx;
     data[1] = this.data[1] * sy;
@@ -63,10 +65,12 @@ export class Matrix4x4 {
     data[4] = this.data[4] * sy;
     data[5] = this.data[5];
     this.data = data;
+    this.methodCalled();
+
     return this;
   }
 
-  translate(x: number, y: number): Matrix4x4 {
+  translate(x: number, y: number): Matrix {
     const data: IData = [1, 0, 0, 0, 1, 0];
     data[0] = this.data[0];
     data[1] = this.data[1];
@@ -76,6 +80,16 @@ export class Matrix4x4 {
     data[4] = this.data[4];
     data[5] = this.data[3] * x + this.data[4] * y + this.data[5];
     this.data = data;
+    this.methodCalled();
+
+    return this;
+  }
+
+  setPosition(v: Vector) {
+    this.data[2] = v.x;
+    this.data[5] = v.y;
+    this.methodCalled();
+
     return this;
   }
 
@@ -83,7 +97,7 @@ export class Matrix4x4 {
     return this.data[4] * this.data[0] - this.data[1] * this.data[3];
   }
 
-  inv(): Matrix4x4 {
+  inv(): Matrix {
     let det = this.det();
     this.data = [
       this.data[4] / det,
@@ -93,31 +107,33 @@ export class Matrix4x4 {
       this.data[0] / det,
       (this.data[2] * this.data[3] - this.data[0] * this.data[5]) / det,
     ];
+
     return this;
   }
 
-  clone(): Matrix4x4 {
-    return new Matrix4x4([...this.data]);
+  clone(): Matrix {
+    return new Matrix([...this.data]);
   }
 
-  copy(m: Matrix4x4): Matrix4x4 {
+  copy(m: Matrix): Matrix {
     this.data[0] = m.data[0];
     this.data[1] = m.data[1];
     this.data[2] = m.data[2];
     this.data[3] = m.data[3];
     this.data[4] = m.data[4];
     this.data[5] = m.data[5];
+    this.methodCalled();
     return this;
   }
 
-  mulV(v: Vector2): Vector2 {
-    return new Vector2(
+  mulV(v: Vector): Vector {
+    return new Vector(
       this.data[0] * v.x + this.data[1] * v.y + this.data[2],
       this.data[3] * v.x + this.data[4] * v.y + this.data[5]
     );
   }
 
-  equal(m: Matrix4x4) {
+  equal(m: Matrix) {
     return (
       this.data[0] == m.data[0] &&
       this.data[1] == m.data[1] &&
@@ -125,6 +141,16 @@ export class Matrix4x4 {
       this.data[3] == m.data[3] &&
       this.data[4] == m.data[4] &&
       this.data[5] == m.data[5]
+    );
+  }
+  applyToCanvasCtx(ctx: CanvasRenderingContext2D) {
+    ctx.transform(
+      this.data[0],
+      this.data[3],
+      this.data[1],
+      this.data[4],
+      this.data[2],
+      this.data[5]
     );
   }
 }
