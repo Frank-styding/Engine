@@ -3,7 +3,7 @@ import { $GameObject } from "./$GameObject";
 import { $Node } from "./$Node";
 import { $CanvasArea } from "./$CanvasArea";
 import { $Root } from "./$Root";
-import { RegisterEvent } from "./Events";
+import { registerEvents } from "./Events";
 
 export class $Camera extends $GameObject {
   static Type = "Camera";
@@ -20,6 +20,7 @@ export class $Camera extends $GameObject {
     this.canvas.height = this.height;
     this.canvasCtx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.projecion = new Matrix();
+    this.events();
   }
 
   cameraIsUpdated() {
@@ -27,11 +28,23 @@ export class $Camera extends $GameObject {
   }
 
   connectRoot(root: $Root) {
-    RegisterEvent(
+    registerEvents(
       root.glovalContext,
       "update",
       this.cameraIsUpdated.bind(this)
     );
+  }
+
+  mosueDown(e: MouseEvent) {}
+  mouseUp(e: MouseEvent) {}
+  mouseMove(e: MouseEvent) {}
+  mouseWheel(e: WheelEvent) {}
+
+  events() {
+    this.canvas.addEventListener("mousedown", this.mosueDown.bind(this));
+    this.canvas.addEventListener("mouseup", this.mouseUp.bind(this));
+    this.canvas.addEventListener("mousemove", this.mouseMove.bind(this));
+    this.canvas.addEventListener("wheel", this.mouseWheel.bind(this));
   }
 
   static draw(camera: $Camera, node: $Node) {
@@ -44,10 +57,8 @@ export class $Camera extends $GameObject {
       const node = list.shift() as $Node;
       camera.canvasCtx.save();
       node.transform.glovalTransform.applyToCanvasCtx(camera.canvasCtx);
-      if (node.type == $CanvasArea.Type) {
-        const canvasArea = node as $CanvasArea;
-        $CanvasArea.drawChilds(canvasArea);
-        camera.canvasCtx.drawImage(canvasArea.canvas, 0, 0);
+      if (node instanceof $CanvasArea) {
+        camera.canvasCtx.drawImage(node.canvas, 0, 0);
       } else {
         node.draw(camera.canvasCtx);
         list.push(...node.children);

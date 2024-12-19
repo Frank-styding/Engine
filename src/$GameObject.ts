@@ -1,7 +1,6 @@
 import { Context, GlovalContext } from "./types/Context";
 import { ID } from "./types/ID";
 import { generateUUID } from "./utils/generateUUID";
-
 export class $GameObject<T extends {} = {}> {
   static Type: string = "GameObject";
   static objects: Record<string, $GameObject> = {};
@@ -56,6 +55,8 @@ export class $GameObject<T extends {} = {}> {
   protected _invInit() {
     this.invInit();
   }
+
+  protected _childsUpdated(t: number) {}
 
   invInit() {} // called from the top to end
   init() {}
@@ -133,11 +134,12 @@ export class $GameObject<T extends {} = {}> {
 
   static update(t: number, object: $GameObject) {
     const list = [object];
+
     const updatedNodes = [];
     while (list.length > 0) {
       const obj = list.shift() as $GameObject;
       if (!obj.isStatic && obj.wasUpdated) {
-        updatedNodes.push(obj);
+        updatedNodes.unshift(obj);
       }
       list.push(...obj.children);
     }
@@ -145,12 +147,18 @@ export class $GameObject<T extends {} = {}> {
     for (let i = 0; i < updatedNodes.length; i++) {
       const node = updatedNodes[i] as $GameObject;
       let parent: $GameObject | undefined = node;
+      if (!memory.has(node)) {
+        memory.add(parent);
+        parent._update(t);
+        parent = parent.parent;
+      }
       while (parent != undefined) {
         if (memory.has(parent)) {
           break;
         }
         memory.add(parent);
-        parent.update(t);
+        parent._update(t);
+        parent._childsUpdated(t);
         parent = parent.parent;
       }
     }

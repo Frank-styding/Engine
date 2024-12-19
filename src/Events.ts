@@ -2,7 +2,7 @@ import { GlovalContext } from "./types/Context";
 
 const eventTag = "event_";
 const eventsTag = "events_";
-export function CallEvent(
+export function callEvent(
   context: GlovalContext<{}>,
   name: string,
   ...args: any[]
@@ -13,7 +13,7 @@ export function CallEvent(
   }
 }
 
-export function RegisterEvent(
+export function registerEvent(
   context: GlovalContext<{}>,
   name: string,
   callback: Function
@@ -32,7 +32,7 @@ export function callEvents(
   );
 }
 
-export function RegisterEvents(
+export function registerEvents(
   context: GlovalContext<{}>,
   name: string,
   callback: Function

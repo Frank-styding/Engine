@@ -106,10 +106,10 @@ export class Vector {
   clone() {
     return new Vector(this._x, this._y);
   }
-  copy(v: Vector) {
+  copy(v: Vector, callMethod: boolean = true) {
     this._x = v._x;
     this._y = v._y;
-    this.methodCalled();
+    if (callMethod) this.methodCalled();
     return this;
   }
   equal(v: Vector) {

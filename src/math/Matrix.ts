@@ -153,4 +153,8 @@ export class Matrix {
       this.data[5]
     );
   }
+
+  getTranslation() {
+    return new Vector(this.data[2], this.data[5]);
+  }
 }

@@ -1,7 +1,7 @@
 import { $GameObject } from "./$GameObject";
 import { Transform } from "./Transform";
 import { ID } from "src/types/ID";
-import { Context } from "src/types/Context";
+import { GlovalContext } from "src/types/Context";
 import { Box } from "./Box";
 
 type $NodeContext = {
@@ -18,41 +18,36 @@ export class $Node extends $GameObject<$NodeContext> {
   constructor(name: string) {
     super(name);
     this.type = $Node.Type;
-    this.transform = new Transform(this.updateTransform.bind(this));
-    this.box = new Box();
+    this.transform = new Transform(this);
+    this.box = new Box(this);
     this.children = [];
-
     this.layerIdx = 0;
-    this.context["updatedNodeTransforms"] = new Set();
+    this.glovalContext["updatedNodeTransforms"] = new Set();
   }
 
   initLayout() {}
 
   draw(ctx: CanvasRenderingContext2D) {}
 
-  private updateTransform() {
-    this.context.updatedNodeTransforms.add(this.id);
-    this.wasUpdated = true;
-  }
-
   protected _invInit(): void {
     this.invInit();
 
-    // connect the transform of parent and children
+    //? connect the transform of parent and children
     for (let i = 0; i < this.children.length; i++) {
       this.children[i].transform.parentTransform =
         this.transform.glovalTransform;
     }
   }
 
-  protected _init(): void {
+  protected _ready(): void {
     this.initLayout();
-    this.init();
+    this.ready();
   }
 
   static updateTransforms(object: $GameObject): void {
-    const updatedNodeTransforms = (object.context as Context<$NodeContext>)
-      .updatedNodeTransforms;
+    const updatedNodeTransforms = (
+      object.glovalContext as GlovalContext<$NodeContext>
+    ).updatedNodeTransforms;
     const baseNodes = Array.from(updatedNodeTransforms);
     for (let i = 0; i < baseNodes.length; i++) {
       const node = $GameObject.objects[baseNodes[i]] as $Node;
