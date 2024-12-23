@@ -16,12 +16,14 @@ const defaultConfig: AppConfig = {
 export class App {
   scenes: Record<string, $Scene>;
   currentScene?: $Scene;
+  stop: boolean;
 
   mainCamera: $Camera;
 
   constructor(public config: AppConfig = defaultConfig) {
     this.scenes = {};
     this.currentScene = undefined;
+    this.stop = false;
 
     this.mainCamera = new $Camera("main");
   }
@@ -82,6 +84,7 @@ export class App {
 
   loop(t: number) {
     if (!this.currentScene) return;
+    if (this.stop) return;
     $Node.updateTransforms(this.currentScene);
     $Node.update(t, this.currentScene);
     $Camera.draw(this.mainCamera, this.currentScene);

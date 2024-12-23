@@ -32,7 +32,7 @@ class Game extends App {
     this.setCurrentScene("main");
     this.elements = [];
     this.showFps = true;
-    for (let i = 0; i < 3000; i++) {
+    for (let i = 0; i < 2; i++) {
       this.elements.push(new Rect(`rect+${i}`, 100, 100 * i, 200, 50));
     }
   }
@@ -43,11 +43,16 @@ class Game extends App {
       this.currentScene.addChild(element);
     }
   }
-
+  count = 0;
   update(): void {
     for (let element of this.elements) {
       element.transform.position.x += 10;
+      console.log(element.transform.glovalTransform.clone());
     }
+    if (this.count > 20) {
+      this.stop = true;
+    }
+    this.count++;
   }
 }
 

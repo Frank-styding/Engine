@@ -4,6 +4,7 @@ export class $CanvasArea extends $Node {
   static Type = "CanvasArea";
   canvas: HTMLCanvasElement;
   canvasCtx: CanvasRenderingContext2D;
+
   constructor(name: string, public width: number, public height: number) {
     super(name);
     this.type = $CanvasArea.Type;
@@ -41,6 +42,10 @@ export class $CanvasArea extends $Node {
         list.push(...node.children);
       }
     }
+
+    ///process
+
+    //process
 
     drawList.sort((a, b) => a.layerIdx - b.layerIdx);
 
