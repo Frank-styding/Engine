@@ -2,7 +2,7 @@ import { Matrix } from "./math/Matrix";
 import { $GameObject } from "./$GameObject";
 import { $Node } from "./$Node";
 import { $CanvasArea } from "./$CanvasArea";
-import { $Root } from "./$Root";
+import { $Scene } from "./$Scene";
 import { registerEvents } from "./Events";
 
 export class $Camera extends $GameObject {
@@ -10,26 +10,37 @@ export class $Camera extends $GameObject {
   canvas: HTMLCanvasElement;
   canvasCtx: CanvasRenderingContext2D;
   projecion: Matrix;
-
-  constructor(name: string, public width: number, public height: number) {
+  width: number;
+  height: number;
+  constructor(name: string) {
     super(name);
+    this.width = 0;
+    this.height = 0;
     this.type = $Camera.Type;
     this.isRootObject = true;
     this.canvas = document.createElement("canvas");
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+    this.canvas.width = 0;
+    this.canvas.height = 0;
     this.canvasCtx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.projecion = new Matrix();
     this.events();
+  }
+
+  setSize(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    return this;
   }
 
   cameraIsUpdated() {
     this.wasUpdated = true;
   }
 
-  connectRoot(root: $Root) {
+  connectScene(scene: $Scene) {
     registerEvents(
-      root.glovalContext,
+      scene.glovalContext,
       "update",
       this.cameraIsUpdated.bind(this)
     );

@@ -1,9 +1,10 @@
+import { $Node } from "./$Node";
 import { Context, GlovalContext } from "./types/Context";
 import { ID } from "./types/ID";
 import { generateUUID } from "./utils/generateUUID";
 export class $GameObject<T extends {} = {}> {
   static Type: string = "GameObject";
-  static objects: Record<string, $GameObject> = {};
+  /*   static objects: Record<string, $GameObject> = {}; */
 
   public name: string;
   public type: string;
@@ -36,8 +37,12 @@ export class $GameObject<T extends {} = {}> {
     this.wasUpdated = true;
     this.treeIdx = 0;
     this.context = { events: {}, data: {} } as Context<T>;
-    this.glovalContext = { events: {}, data: {} } as GlovalContext<T>;
-    $GameObject.objects[this.id] = this;
+    this.glovalContext = {
+      events: {},
+      data: {},
+      nodes: {},
+    } as GlovalContext<T>;
+    /* $GameObject.objects[this.id] = this; */
   }
 
   protected _init() {
@@ -125,6 +130,7 @@ export class $GameObject<T extends {} = {}> {
     }
     for (let i = 0; i < list.length; i++) {
       const obj = list[i] as $GameObject;
+      obj.glovalContext["nodes"][obj.id] = obj as $Node;
       if (!obj.isReady) {
         obj._ready();
         obj.isReady = true;

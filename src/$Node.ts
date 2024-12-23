@@ -50,7 +50,7 @@ export class $Node extends $GameObject<$NodeContext> {
     ).updatedNodeTransforms;
     const baseNodes = Array.from(updatedNodeTransforms);
     for (let i = 0; i < baseNodes.length; i++) {
-      const node = $GameObject.objects[baseNodes[i]] as $Node;
+      const node = object.glovalContext.nodes[baseNodes[i]] as $Node;
       updatedNodeTransforms.delete(baseNodes[i]);
       if (node.transform.update()) {
         const list = [...node.children];
