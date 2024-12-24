@@ -2,11 +2,11 @@ import { $Node } from "./$Node";
 import { callEvents } from "./Events";
 
 export class $Scene extends $Node {
-  parents: $Node[];
+  cameras: $Node[];
   constructor(name: string) {
     super(name);
     this.glovalContext.scenes ||= [];
-    this.parents = [];
+    this.cameras = [];
   }
 
   protected _init() {

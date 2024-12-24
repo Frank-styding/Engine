@@ -152,12 +152,16 @@ export class $GameObject<T extends {} = {}> {
       if (!memory.has(obj)) {
         memory.add(parent);
         parent._update(t);
+
+        // ? updated cameras
         if (parent instanceof $Scene) {
-          for (let camera of parent.parents) {
+          for (let camera of parent.cameras) {
             memory.add(camera);
             parent._update(t);
           }
         }
+        //?
+
         parent = parent.parent;
       }
       while (parent != undefined) {
@@ -167,12 +171,14 @@ export class $GameObject<T extends {} = {}> {
         memory.add(parent);
         parent._update(t);
         parent._childsUpdated(t);
+        // ? updated cameras
         if (parent instanceof $Scene) {
-          for (let camera of parent.parents) {
+          for (let camera of parent.cameras) {
             memory.add(camera);
             parent._update(t);
           }
         }
+        //?
         parent = parent.parent;
       }
     }
