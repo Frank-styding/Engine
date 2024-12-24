@@ -4,7 +4,6 @@ import { ID } from "./types/ID";
 import { generateUUID } from "./utils/generateUUID";
 export class $GameObject<T extends {} = {}> {
   static Type: string = "GameObject";
-  /*   static objects: Record<string, $GameObject> = {}; */
 
   public name: string;
   public type: string;
@@ -42,7 +41,6 @@ export class $GameObject<T extends {} = {}> {
       data: {},
       nodes: {},
     } as GlovalContext<T>;
-    /* $GameObject.objects[this.id] = this; */
   }
 
   protected _init() {
@@ -84,20 +82,18 @@ export class $GameObject<T extends {} = {}> {
       }
     }
     this.children.push(...children);
-    if (this.wasInitialized) {
-      for (let i = 0; i < children.length; i++) {
-        $GameObject.init(children[i]);
-      }
+    if (!this.wasInitialized) return;
+    for (let i = 0; i < children.length; i++) {
+      $GameObject.init(children[i]);
     }
   }
 
   remove() {
-    if (this.parent) {
-      this.parent.children = this.parent.children.filter(
-        (child) => child.id != this.id
-      );
-      this.parent = undefined;
-    }
+    if (!this.parent) return;
+    this.parent.children = this.parent.children.filter(
+      (child) => child.id != this.id
+    );
+    this.parent = undefined;
   }
 
   static init(object: $GameObject) {
@@ -140,20 +136,19 @@ export class $GameObject<T extends {} = {}> {
 
   static update(t: number, object: $GameObject) {
     const list = [object];
-
-    const updatedNodes = [];
+    const updatedObjects = [];
     while (list.length > 0) {
       const obj = list.shift() as $GameObject;
       if (!obj.isStatic && obj.wasUpdated) {
-        updatedNodes.unshift(obj);
+        updatedObjects.unshift(obj);
       }
       list.push(...obj.children);
     }
     const memory = new Set();
-    for (let i = 0; i < updatedNodes.length; i++) {
-      const node = updatedNodes[i] as $GameObject;
-      let parent: $GameObject | undefined = node;
-      if (!memory.has(node)) {
+    for (let i = 0; i < updatedObjects.length; i++) {
+      const obj = updatedObjects[i] as $GameObject;
+      let parent: $GameObject | undefined = obj;
+      if (!memory.has(obj)) {
         memory.add(parent);
         parent._update(t);
         parent = parent.parent;

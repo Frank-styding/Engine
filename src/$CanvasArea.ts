@@ -1,19 +1,34 @@
 import { $Node } from "./$Node";
+import { MatrixState } from "./math/MatrixState";
 
 export class $CanvasArea extends $Node {
   static Type = "CanvasArea";
   canvas: HTMLCanvasElement;
   canvasCtx: CanvasRenderingContext2D;
+  projecion: MatrixState;
+  width: number;
+  height: number;
 
-  constructor(name: string, public width: number, public height: number) {
+  constructor(name: string) {
     super(name);
     this.type = $CanvasArea.Type;
     this.isRootObject = true;
     this.canvas = document.createElement("canvas");
     this.canvasCtx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+    this.projecion = new MatrixState();
+    this.width = 0;
+    this.height = 0;
   }
 
-  protected setCanvasSize() {
+  setSize(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    return this;
+  }
+
+  setCanvasSize() {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
   }
@@ -29,6 +44,8 @@ export class $CanvasArea extends $Node {
   static drawChilds(canvasArea: $CanvasArea) {
     canvasArea.canvasCtx.clearRect(0, 0, canvasArea.width, canvasArea.height);
     canvasArea.draw(canvasArea.canvasCtx);
+    canvasArea.canvasCtx.save();
+    canvasArea.projecion.applyToCanvasCtx(canvasArea.canvasCtx);
     const list = [...canvasArea.children];
     const drawList = [];
     while (list.length > 0) {
@@ -42,10 +59,6 @@ export class $CanvasArea extends $Node {
         list.push(...node.children);
       }
     }
-
-    ///process
-
-    //process
 
     drawList.sort((a, b) => a.layerIdx - b.layerIdx);
 
