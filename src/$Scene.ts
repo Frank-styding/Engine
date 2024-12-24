@@ -2,9 +2,16 @@ import { $Node } from "./$Node";
 import { callEvents } from "./Events";
 
 export class $Scene extends $Node {
+  parents: $Node[];
   constructor(name: string) {
     super(name);
-    this.context["scene"] = this;
+    this.glovalContext.scenes ||= [];
+    this.parents = [];
+  }
+
+  protected _init() {
+    super.init();
+    this.glovalContext.scenes.push(this);
   }
 
   update(t: number): void {

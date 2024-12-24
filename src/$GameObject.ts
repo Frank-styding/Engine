@@ -1,4 +1,5 @@
 import { $Node } from "./$Node";
+import { $Scene } from "./$Scene";
 import { Context, GlovalContext } from "./types/Context";
 import { ID } from "./types/ID";
 import { generateUUID } from "./utils/generateUUID";
@@ -151,6 +152,12 @@ export class $GameObject<T extends {} = {}> {
       if (!memory.has(obj)) {
         memory.add(parent);
         parent._update(t);
+        if (parent instanceof $Scene) {
+          for (let camera of parent.parents) {
+            memory.add(camera);
+            parent._update(t);
+          }
+        }
         parent = parent.parent;
       }
       while (parent != undefined) {
@@ -160,6 +167,12 @@ export class $GameObject<T extends {} = {}> {
         memory.add(parent);
         parent._update(t);
         parent._childsUpdated(t);
+        if (parent instanceof $Scene) {
+          for (let camera of parent.parents) {
+            memory.add(camera);
+            parent._update(t);
+          }
+        }
         parent = parent.parent;
       }
     }
