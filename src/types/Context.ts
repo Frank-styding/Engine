@@ -1,6 +1,6 @@
 import { App } from "../App";
-import { $GameObject } from "../$GameObject";
 import { $Node } from "src/$Node";
+import { $Scene } from "src/$Scene";
 
 export type Context<T> = {
   events: Record<string, Function[] | Function>;
@@ -12,6 +12,6 @@ export type GlovalContext<T> = {
   lastNodes: Set<string>;
   nodes: Record<string, $Node>;
   app?: App;
-  scenes: $GameObject[];
+  scene?: $Scene;
   data: Record<string, unknown>;
 } & T;

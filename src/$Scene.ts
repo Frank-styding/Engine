@@ -1,22 +1,15 @@
 import { $Node } from "./$Node";
-import { callEvents } from "./Events";
 
 export class $Scene extends $Node {
   cameras: $Node[];
   constructor(name: string) {
     super(name);
-    this.glovalContext.scenes ||= [];
     this.cameras = [];
   }
 
   protected _init() {
     super.init();
-    this.glovalContext.scenes.push(this);
-  }
-
-  update(t: number): void {
-    super.update(t);
-    callEvents(this.glovalContext, "update");
+    this.glovalContext.scene = this;
   }
 
   findNode(path: string) {

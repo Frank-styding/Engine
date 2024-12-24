@@ -50,7 +50,7 @@ export class App {
 
   connectToCameras() {
     if (!this.currentScene) return;
-    this.mainCamera.connectScene(this.currentScene);
+    //!this.mainCamera.connectScene(this.currentScene);
   }
 
   connectToComponents() {
@@ -87,7 +87,7 @@ export class App {
     if (this.stop) return;
     $Node.updateTransforms(this.currentScene);
     $Node.update(t, this.currentScene);
-    $Camera.draw(this.mainCamera, this.currentScene);
+    //! $Camera.draw(this.mainCamera, this.currentScene);
     this.update();
     if (this.showFps) {
       const endTime = Date.now();
