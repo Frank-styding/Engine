@@ -1,6 +1,6 @@
-import { $Node } from "./$Node";
-import { $Scene } from "./$Scene";
-import { App } from "./App";
+/* import { $Node } from "./auxiliar/$Node";
+import { $Scene } from "./auxiliar/$Scene";
+import { App } from "./auxiliar/App";
 
 class Rect extends $Node {
   constructor(
@@ -26,7 +26,7 @@ class Rect extends $Node {
 
 class Game extends App {
   elements: Rect[];
-  constructor() {
+  constructor() {s
     super();
     this.addScene(new $Scene("main"));
     this.setCurrentScene("main");
@@ -60,3 +60,4 @@ const game = new Game();
 game.addToDom();
 game.updateSizeCamera();
 game.start();
+ */

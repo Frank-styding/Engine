@@ -1,90 +1,79 @@
-export class Vector {
-  private _x: number;
-  private _y: number;
+import { ClassMethods } from "../types/ClassMethods";
 
-  constructor(x: number = 0, y: number = 0) {
-    this._x = x;
-    this._y = y;
-  }
+export class Vector implements ClassMethods<Vector> {
+  updatedCallback?: () => void;
 
-  protected methodCalled(): void {}
+  constructor(private _x: number = 0, private _y: number = 0) {}
 
   get x() {
     return this._x;
+  }
+
+  set x(value: number) {
+    if (this.updatedCallback) this.updatedCallback();
+    this._x = value;
   }
 
   get y() {
     return this._y;
   }
 
-  set x(value: number) {
-    this._x = value;
-    this.methodCalled();
-  }
-
   set y(value: number) {
+    if (this.updatedCallback) this.updatedCallback();
     this._y = value;
-    this.methodCalled();
   }
 
   addV(v: Vector) {
     this._x += v._x;
     this._y += v._y;
-    this.methodCalled();
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   add(x: number, y: number) {
     this._x += x;
     this._y += y;
-    this.methodCalled();
-
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   addS(s: number) {
     this._x += s;
     this._y += s;
-    this.methodCalled();
-
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   subV(v: Vector) {
     this._x += v._x;
     this._y += v._y;
-    this.methodCalled();
-
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   sub(x: number, y: number) {
     this._x += x;
     this._y += y;
-    this.methodCalled();
-
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   subS(s: number) {
     this._x += s;
     this._y += s;
-    this.methodCalled();
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   mulV(v: Vector) {
     this._x += v._x;
     this._y += v._y;
-    this.methodCalled();
-
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   mul(x: number, y: number) {
     this._x += x;
     this._y += y;
-    this.methodCalled();
-
     return this;
   }
   mulS(s: number) {
     this._x += s;
     this._y += s;
-    this.methodCalled();
+    if (this.updatedCallback) this.updatedCallback();
     return this;
   }
   lengthSQRT(): number {
@@ -106,13 +95,10 @@ export class Vector {
   clone() {
     return new Vector(this._x, this._y);
   }
-  copy(v: Vector, callMethod: boolean = true) {
+  copy(v: Vector, callUpdated: boolean = true) {
     this._x = v._x;
     this._y = v._y;
-    if (callMethod) this.methodCalled();
+    if (callUpdated && this.updatedCallback) this.updatedCallback();
     return this;
-  }
-  equal(v: Vector) {
-    return this._x == v._x && this._y == v._y;
   }
 }

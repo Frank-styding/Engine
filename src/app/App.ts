@@ -1,6 +1,6 @@
-import { $Camera } from "./$Camera";
-import { $Node } from "./$Node";
-import { $Scene } from "./$Scene";
+import { $Scene } from "../nodes/$Scene";
+import { $Camera } from "../nodes/$Camera";
+import { init, update, updateTransforms } from "../nodes/methods";
 
 interface AppConfig {
   mainCamera?: {
@@ -33,13 +33,13 @@ export class App {
       this.config.canvasContainer
     );
     if (!canvasContainer) return;
-    canvasContainer.appendChild(this.mainCamera.canvas);
+    canvasContainer.appendChild(this.mainCamera.canvas.canvas);
   }
 
   updateSizeCamera() {
     const width = (this.config.mainCamera?.width || 1) * innerWidth;
     const height = (this.config.mainCamera?.height || 1) * innerHeight;
-    this.mainCamera.setSize(width, height);
+    this.mainCamera.canvas.setSize(width, height);
   }
 
   draw() {}
@@ -55,7 +55,7 @@ export class App {
 
   connectToComponents() {
     if (!this.currentScene) return;
-    this.currentScene.glovalContext.app = this;
+    this.currentScene.context.registerApp(this);
   }
 
   protected init() {}
@@ -69,7 +69,7 @@ export class App {
   start() {
     if (!this.currentScene) return;
     this.init();
-    $Node.init(this.currentScene);
+    init(this.currentScene);
     this.connectToComponents();
     this.connectToCameras();
     this.resizeEvent();
@@ -85,8 +85,8 @@ export class App {
   loop(t: number) {
     if (!this.currentScene) return;
     if (this.stop) return;
-    $Node.updateTransforms(this.currentScene);
-    $Node.update(t, this.currentScene);
+    updateTransforms(this.currentScene);
+    update(t, this.currentScene);
     //! $Camera.draw(this.mainCamera, this.currentScene);
     this.update();
     if (this.showFps) {

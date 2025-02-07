@@ -1,160 +1,162 @@
+import { ClassMethods } from "../types/ClassMethods";
 import { Vector } from "./Vector";
 
-type IData = [number, number, number, number, number, number];
-export class Matrix {
-  private data: IData = [1, 0, 0, 0, 1, 0];
-  protected methodCalled(): void {}
-
-  constructor(data?: IData) {
-    if (data) this.data = data;
+type Data = [number, number, number, number, number, number];
+export class Matrix implements ClassMethods<Matrix> {
+  constructor(public data: Data = [1, 0, 0, 0, 1, 0]) {
+    this.position.updatedCallback = () => {
+      this.setPosition(this.position, false);
+    };
   }
 
-  mul(m: Matrix): Matrix {
-    const data: IData = [1, 0, 0, 0, 1, 0];
-    data[0] = this.data[0] * m.data[0] + this.data[1] * m.data[3];
-    data[1] = this.data[0] * m.data[1] + this.data[1] * m.data[4];
-    data[2] =
-      this.data[0] * m.data[2] + this.data[1] * m.data[5] + this.data[2];
+  updatedCallback?: () => void;
 
-    data[3] = this.data[3] * m.data[0] + this.data[4] * m.data[3];
-    data[4] = this.data[3] * m.data[1] + this.data[4] * m.data[4];
-    data[5] =
-      this.data[3] * m.data[2] + this.data[4] * m.data[5] + this.data[5];
-    this.data = data;
-    this.methodCalled();
+  _updatedCallback() {
+    this.position.copy(this.getTranslation());
+    if (this.updatedCallback) this.updatedCallback();
+  }
+
+  position: Vector = new Vector();
+
+  mul(m: Matrix) {
+    const d: Data = [1, 0, 0, 0, 1, 0];
+    const d0 = this.data;
+    const d1 = m.data;
+    d[0] = d0[0] * d1[0] + d0[1] * d1[3];
+    d[1] = d0[0] * d1[1] + d0[1] * d1[4];
+    d[2] = d0[0] * d1[2] + d0[1] * d1[5] + d0[2];
+    d[3] = d0[3] * d1[0] + d0[4] * d1[3];
+    d[4] = d0[3] * d1[1] + d0[4] * d1[4];
+    d[5] = d0[3] * d1[2] + d0[4] * d1[5] + d0[5];
+    this.data = d;
+    if (this._updatedCallback) this._updatedCallback();
+
     return this;
   }
 
   leftMul(m: Matrix) {
-    const data: IData = [1, 0, 0, 0, 1, 0];
-    data[0] = m.data[0] * this.data[0] + m.data[1] * this.data[3];
-    data[1] = m.data[0] * this.data[1] + m.data[1] * this.data[4];
-    data[2] = m.data[0] * this.data[2] + m.data[1] * this.data[5] + m.data[2];
-
-    data[3] = m.data[3] * this.data[0] + m.data[4] * this.data[3];
-    data[4] = m.data[3] * this.data[1] + m.data[4] * this.data[4];
-    data[5] = m.data[3] * this.data[2] + m.data[4] * this.data[5] + m.data[5];
-    this.data = data;
-    this.methodCalled();
+    const d: Data = [1, 0, 0, 0, 1, 0];
+    const d0 = m.data;
+    const d1 = this.data;
+    d[0] = d0[0] * d1[0] + d0[1] * d1[3];
+    d[1] = d0[0] * d1[1] + d0[1] * d1[4];
+    d[2] = d0[0] * d1[2] + d0[1] * d1[5] + d0[2];
+    d[3] = d0[3] * d1[0] + d0[4] * d1[3];
+    d[4] = d0[3] * d1[1] + d0[4] * d1[4];
+    d[5] = d0[3] * d1[2] + d0[4] * d1[5] + d0[5];
+    this.data = d;
+    if (this._updatedCallback) this._updatedCallback();
 
     return this;
   }
 
-  rotate(a: number): Matrix {
+  rotate(a: number) {
     const c = Math.cos(a);
     const s = Math.sin(a);
-    const data: IData = [1, 0, 0, 0, 1, 0];
-    data[0] = this.data[0] * c + this.data[1] * s;
-    data[1] = this.data[0] * -s + this.data[1] * c;
-    data[2] = this.data[2];
-    data[3] = this.data[3] * c + this.data[4] * s;
-    data[4] = this.data[3] * -s + this.data[4] * c;
-    data[5] = this.data[5];
-    this.data = data;
-    this.methodCalled();
+    const d: Data = [1, 0, 0, 0, 1, 0];
+    const d0 = this.data;
+    d[0] = d0[0] * c + d0[1] * s;
+    d[1] = d0[0] * -s + d0[1] * c;
+    d[2] = d0[2];
+    d[3] = d0[3] * c + d0[4] * s;
+    d[4] = d0[3] * -s + d0[4] * c;
+    d[5] = d0[5];
+    this.data = d;
+    if (this._updatedCallback) this._updatedCallback();
 
     return this;
   }
 
-  scale(sx: number, sy: number): Matrix {
-    const data: IData = [1, 0, 0, 0, 1, 0];
-    data[0] = this.data[0] * sx;
-    data[1] = this.data[1] * sy;
-    data[2] = this.data[2];
-    data[3] = this.data[3] * sx;
-    data[4] = this.data[4] * sy;
-    data[5] = this.data[5];
-    this.data = data;
-    this.methodCalled();
+  scale(sx: number, sy: number) {
+    const d: Data = [1, 0, 0, 0, 1, 0];
+    const d0 = this.data;
+    d[0] = d0[0] * sx;
+    d[1] = d0[1] * sy;
+    d[2] = d0[2];
+    d[3] = d0[3] * sx;
+    d[4] = d0[4] * sy;
+    d[5] = d0[5];
+    this.data = d;
+    if (this._updatedCallback) this._updatedCallback();
 
     return this;
   }
 
-  translate(x: number, y: number): Matrix {
-    const data: IData = [1, 0, 0, 0, 1, 0];
-    data[0] = this.data[0];
-    data[1] = this.data[1];
-    data[2] = this.data[0] * x + this.data[1] * y + this.data[2];
-
-    data[3] = this.data[3];
-    data[4] = this.data[4];
-    data[5] = this.data[3] * x + this.data[4] * y + this.data[5];
-    this.data = data;
-    this.methodCalled();
-
+  translate(x: number, y: number) {
+    const d: Data = [1, 0, 0, 0, 1, 0];
+    const d0 = this.data;
+    d[0] = d0[0];
+    d[1] = d0[1];
+    d[2] = d0[0] * x + d0[1] * y + d0[2];
+    d[3] = d0[3];
+    d[4] = d0[4];
+    d[5] = d0[3] * x + d0[4] * y + d0[5];
+    this.data = d;
+    if (this._updatedCallback) this._updatedCallback();
     return this;
   }
 
-  setPosition(v: Vector) {
-    this.data[2] = v.x;
-    this.data[5] = v.y;
-    this.methodCalled();
-
-    return this;
+  det() {
+    const d0 = this.data;
+    return d0[4] * d0[0] - d0[1] * d0[3];
   }
 
-  det(): number {
-    return this.data[4] * this.data[0] - this.data[1] * this.data[3];
-  }
-
-  inv(): Matrix {
+  inv() {
     let det = this.det();
-    this.data = [
-      this.data[4] / det,
-      -this.data[1] / det,
-      (this.data[1] * this.data[5] - this.data[4] * this.data[2]) / det,
-      -this.data[3] / det,
-      this.data[0] / det,
-      (this.data[2] * this.data[3] - this.data[0] * this.data[5]) / det,
+    const d0 = this.data;
+    const d: Data = [
+      d0[4] / det,
+      -d0[1] / det,
+      (d0[1] * d0[5] - d0[4] * d0[2]) / det,
+      -d0[3] / det,
+      d0[0] / det,
+      (d0[2] * d0[3] - d0[0] * d0[5]) / det,
     ];
-
-    return this;
+    return new Matrix(d);
   }
 
-  clone(): Matrix {
+  clone() {
     return new Matrix([...this.data]);
   }
 
-  copy(m: Matrix): Matrix {
-    this.data[0] = m.data[0];
-    this.data[1] = m.data[1];
-    this.data[2] = m.data[2];
-    this.data[3] = m.data[3];
-    this.data[4] = m.data[4];
-    this.data[5] = m.data[5];
-    this.methodCalled();
+  copy(m: Matrix, callUpdate: boolean = true) {
+    const d = this.data;
+    d[0] = m.data[0];
+    d[1] = m.data[1];
+    d[2] = m.data[2];
+    d[3] = m.data[3];
+    d[4] = m.data[4];
+    d[5] = m.data[5];
+    if (callUpdate && this._updatedCallback) this._updatedCallback();
     return this;
   }
 
-  mulV(v: Vector): Vector {
-    return new Vector(
-      this.data[0] * v.x + this.data[1] * v.y + this.data[2],
-      this.data[3] * v.x + this.data[4] * v.y + this.data[5]
+  equals(m: Matrix) {
+    const d = this.data;
+    const d0 = m.data;
+    return (
+      d[0] == d0[0] &&
+      d[1] == d0[1] &&
+      d[2] == d0[2] &&
+      d[3] == d0[3] &&
+      d[4] == d0[4] &&
+      d[5] == d0[5]
     );
   }
 
-  equal(m: Matrix) {
-    return (
-      this.data[0] == m.data[0] &&
-      this.data[1] == m.data[1] &&
-      this.data[2] == m.data[2] &&
-      this.data[3] == m.data[3] &&
-      this.data[4] == m.data[4] &&
-      this.data[5] == m.data[5]
-    );
-  }
   applyToCanvasCtx(ctx: CanvasRenderingContext2D) {
-    ctx.transform(
-      this.data[0],
-      this.data[3],
-      this.data[1],
-      this.data[4],
-      this.data[2],
-      this.data[5]
-    );
+    const d = this.data;
+    ctx.transform(d[0], d[3], d[1], d[4], d[2], d[5]);
   }
 
   getTranslation() {
     return new Vector(this.data[2], this.data[5]);
+  }
+
+  setPosition(v: Vector, callUpdate: boolean = true) {
+    this.data[2] = v.x;
+    this.data[5] = v.y;
+    if (callUpdate && this._updatedCallback) this._updatedCallback();
+    return this;
   }
 }

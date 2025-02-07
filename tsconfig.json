@@ -11,15 +11,11 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "core/*": ["./src/core/*"],
-      "components/*": ["./src/components/*"]
-    }
+    "baseUrl": "."
   },
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "ES2015"
     }
   }
 }
